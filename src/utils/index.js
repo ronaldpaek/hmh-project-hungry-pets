@@ -8,6 +8,7 @@ const generatePet = () => {
   const hunger = 0;
   const love = 100;
   const eulogy = petEulogies[randomNameIndex];
+  const isAlive = true;
 
   return {
     id,
@@ -16,6 +17,7 @@ const generatePet = () => {
     hunger,
     love,
     eulogy,
+    isAlive,
   };
 };
 

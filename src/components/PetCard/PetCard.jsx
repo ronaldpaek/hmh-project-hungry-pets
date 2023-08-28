@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 import styles from "./styles.module.css";
 
-const PetCard = ({ pet }) => {
+const PetCard = ({ pet, onPetDeath }) => {
   const [hunger, setHunger] = useState(pet.hunger);
   const [love, setLove] = useState(pet.love);
   const [isPetAlive, setIsPetAlive] = useState(true);
@@ -17,6 +17,7 @@ const PetCard = ({ pet }) => {
       if (hunger >= 100 || love <= 0) {
         clearInterval(interval);
         setIsPetAlive(false);
+        onPetDeath(pet.id);
         return;
       }
 
@@ -24,7 +25,7 @@ const PetCard = ({ pet }) => {
       setLove((prevLove) => prevLove - 2);
     }, 1000);
     return () => clearTimeout(interval);
-  }, [hunger, love]);
+  }, [hunger, love, onPetDeath, pet.id]);
 
   useEffect(() => {
     if (!isPetAlive) {
@@ -90,7 +91,9 @@ PetCard.propTypes = {
     hunger: PropTypes.number.isRequired,
     love: PropTypes.number.isRequired,
     eulogy: PropTypes.string.isRequired,
+    isAlive: PropTypes.bool.isRequired,
   }).isRequired,
+  onPetDeath: PropTypes.func.isRequired,
 };
 
 export default PetCard;
