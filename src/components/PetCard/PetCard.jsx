@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 
 import styles from "./styles.module.css";
@@ -12,27 +12,6 @@ const PetCard = ({ pet, onPetDeath }) => {
     ? `${styles.card} ${styles.cardWithAnimation}`
     : styles.card;
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (hunger >= 100 || love <= 0) {
-        clearInterval(interval);
-        setIsPetAlive(false);
-        onPetDeath(pet.id);
-        return;
-      }
-
-      setHunger((prevHunger) => prevHunger + 2);
-      setLove((prevLove) => prevLove - 2);
-    }, 1000);
-    return () => clearTimeout(interval);
-  }, [hunger, love, onPetDeath, pet.id]);
-
-  useEffect(() => {
-    if (!isPetAlive) {
-      setShowAnimation(true);
-    }
-  }, [isPetAlive]);
-
   const handleFeedClick = () => {
     setHunger(0);
   };
@@ -40,6 +19,43 @@ const PetCard = ({ pet, onPetDeath }) => {
   const handleEmojiClick = () => {
     setLove(100);
   };
+
+  const declareDeath = useCallback(() => {
+    if (isPetAlive) {
+      setIsPetAlive(false);
+      onPetDeath(pet.id);
+    }
+  }, [isPetAlive, onPetDeath, pet.id]);
+
+  useEffect(() => {
+    if (!isPetAlive) {
+      setShowAnimation(true);
+    }
+  }, [isPetAlive]);
+
+  useEffect(() => {
+    let isPetCurrentlyAlive = true;
+
+    const interval = setInterval(() => {
+      if (!isPetCurrentlyAlive) {
+        return;
+      }
+
+      if (hunger + 2 >= 100 || love - 2 <= 0) {
+        clearInterval(interval);
+        declareDeath();
+        return;
+      }
+
+      setHunger((prevHunger) => prevHunger + 2);
+      setLove((prevLove) => prevLove - 2);
+    }, 1000);
+
+    return () => {
+      isPetCurrentlyAlive = false;
+      clearInterval(interval);
+    };
+  }, [hunger, love, onPetDeath, pet.id, declareDeath]);
 
   return (
     <li key={pet.id} className={cardClass}>

@@ -12,14 +12,15 @@ const App = () => {
   }, [pets]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const addNewPetIfAllAlive = () => {
       const allPetsAlive = petsRef.current.every((pet) => pet.isAlive);
 
       if (allPetsAlive) {
         const newPet = generatePet();
         setPets((prevPets) => [...prevPets, newPet]);
       }
-    }, 10000);
+    };
+    const interval = setInterval(addNewPetIfAllAlive, 10000);
     return () => clearTimeout(interval);
   }, []);
 
